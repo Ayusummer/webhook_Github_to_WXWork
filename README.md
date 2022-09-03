@@ -51,7 +51,7 @@ cd webhook_Github_to_WXWork
 poetry install
 ```
 
-3. 编辑 `config.toml` 文件
+3. 删除 `config.toml_tmp` 的 `_tmp` 或者复制一份 `config.toml` 并编辑 `config.toml` 文件
 
 4. (Linux) 使用 screen 或者 tmux 或者 zellij 创建一个窗口
 
