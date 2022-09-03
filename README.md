@@ -4,11 +4,54 @@ Github Repo Webhook 推送到企微群的中转服务
 # TODO
 
 - 更多事件支持
-  - [x] Push 事件
-  - [ ] Release 事件
-  - [ ] Wiki 事件
-  - [ ] Star 事件
-  - [ ] Watch 事件
+  - [x] Pushes
+  - [x] Branch or tag creation
+        > 处理了但没完全处理, 只是简单的把事件类型发出来了, 等见得多了再完善
+  - [x] ping
+  - [ ] Releases
+  - [ ] Wiki
+  - [ ] Stars
+  - [ ] Watches
+  - [ ] Branch or tag deletion
+  - [ ] Branch protection rules
+  - [ ] Check runs
+  - [ ] Check suites
+  - [ ] Code scanning alerts
+  - [ ] Collaborator add, remove, or changed
+  - [ ] Commit comments
+  - [ ] Deploy keys
+  - [ ] Deployment statuses
+  - [ ] Deployments
+  - [ ] Discussion comments
+  - [ ] Discussions
+  - [ ] Forks
+  - [ ] Issue comments
+  - [ ] Issues
+  - [ ] Labels
+  - [ ] Meta
+  - [ ] Milestones
+  - [ ] Packages
+  - [ ] Page builds
+  - [ ] Project cards
+  - [ ] Project columns
+  - [ ] Projects
+  - [ ] Pull request review comments
+  - [ ] Pull request review threads
+  - [ ] Pull request reviews
+  - [ ] Pull requests
+  - [ ] Registry packages
+  - [ ] Repositories
+  - [ ] Repository imports
+  - [ ] Repository vulnerability alerts
+  - [ ] Secret scanning alert locations
+  - [ ] Secret scanning alerts
+  - [ ] Security and analyses
+  - [ ] Statuses
+  - [ ] Team adds
+  - [ ] Visibility changes
+  - [ ] Workflow jobs
+  - [ ] Workflow runs
+
 - 安全能力提升
   - [ ] 使用 HMAC-256 
 

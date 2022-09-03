@@ -23,15 +23,16 @@ else:
     app = FastAPI()
 
 
-# 创建 hash 签名
 def generate_hash_signature(
     secret: bytes,
     pyload: bytes,
     digest_method=hashlib.sha1,
-):
+)-> str:
+    """生成 HMAC 摘要  
+    :param secret: 密钥
+    :param pyload: 要加密的数据
+    """
     return hmac.new(secret, pyload, digest_method).hexdigest()
-
-
 
 
 def push_event(data: dict) -> str:
@@ -61,7 +62,41 @@ def push_event(data: dict) -> str:
     return post_markdown
 
 
+def ping_event(data: dict) -> str:
+    """通过 data 获取 ping 信息并生成相应 markdown 推送文本  
+    :param data: ping 事件中的 json data
+    """
+    # 仓库及分支
+    repo_head = data['repository']['name']
+    # 仓库链接
+    repo_link = data['repository']['url']
+    # 提交作者
+    author = data['sender']['login']
 
+    # author_avatar (目前企业微信还不支持 markdown 中的图片语法)
+    # author_avatar = data['sender']['avatar_url']
+    # author_avatar_markdown = f"![avatar]({author_avatar})"
+    # post_markdown = f"[{repo_head}]({repo_link}) pinged by {author} {author_avatar_markdown}"
+
+    post_markdown = f"[{repo_head}]({repo_link}) pinged by {author}"
+
+    return post_markdown
+
+
+def branch_or_tag_create_event(data: dict) -> str:
+    """通过 data 获取 branch or tag create 信息并生成相应 markdown 推送文本  
+    :param data: branch or tag create 事件中的 json data
+    """
+    # 仓库及分支
+    repo_head = data['repository']['name'] + ':' + data['ref'].split('/')[-1]
+    # 仓库链接
+    repo_link = data['repository']['url']
+    # 提交作者
+    author = data['sender']['login']
+
+    post_markdown = f"[{repo_head}]({repo_link}) branch/tag created by {author}"
+
+    return post_markdown
 
 @app.post("/webhook", status_code=http.HTTPStatus.ACCEPTED)
 async def webhook(request: Request, x_hub_signature:str = Header(None)):
@@ -87,6 +122,12 @@ async def webhook(request: Request, x_hub_signature:str = Header(None)):
     # 处理 push 事件
     if event == 'push':
         post_markdown = push_event(data)
+    # 处理 branch or tag create 事件
+    elif event == 'create':
+        post_markdown = branch_or_tag_create_event(data)
+    # 处理 Webhook 初始化 ping 事件
+    elif event == 'ping':
+        post_markdown = ping_event(data)
     else:
         post_markdown = f"未处理事件: {event}"
     
