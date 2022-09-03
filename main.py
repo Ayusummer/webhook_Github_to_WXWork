@@ -41,8 +41,8 @@ async def webhook(request: Request, x_hub_signature:str = Header(None)):
     pyload = await request.body()
     secret = WEBHOOK_SECRET.encode("utf-8")
     signature = generate_hash_signature(secret, pyload)
-    # 验证签名
-    if x_hub_signature != f"sha1={signature}":
+    # 验证签名(不使用等式判断，使用 hmac.compare_digest 防止时序攻击)
+    if not hmac.compare_digest(f"sha1={signature}", x_hub_signature):
         raise HTTPException(status_code=403, detail="Forbidden")
     # 获取请求体并转换为 json(dict)
     data = jsonable_encoder(pyload.decode("utf-8"))
