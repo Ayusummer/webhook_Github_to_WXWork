@@ -81,7 +81,7 @@ async def webhook(request: Request, x_hub_signature:str = Header(None)):
 
 if __name__ == "__main__":
     # 获取配置文件中的 uvicorn 启动参数并启动服务
-    os.system("uvicorn main:app" \
-        + config['uvicorn']['reload'] \
-            + " --host " + config['uvicorn']['host'] \
-                + " --port " + str(config['uvicorn']['port']))
+    os.system("uvicorn main:app" + " " \
+        + config['uvicorn']['reload'] + " " \
+            + "--host " + config['uvicorn']['host'] + " " \
+                + "--port " + str(config['uvicorn']['port']))
