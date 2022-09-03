@@ -31,6 +31,42 @@ def generate_hash_signature(
 ):
   return hmac.new(secret, pyload, digest_method).hexdigest()
 
+
+
+
+def push_event(data: dict) -> str:
+    """通过 data 获取 push 信息并生成相应 markdown 推送文本  
+    :param data: push 事件中的 json data
+    """
+   # 仓库及分支
+    repo_head = data['repository']['name'] + ':' + data['ref'].split('/')[-1]
+    # 仓库链接
+    repo_link = data['repository']['url']
+    # 提交作者
+    author = data['commits'][0]['author']['name']
+    # 提交数量
+    commit_count = len(data['commits'])
+
+
+    commit_markdown = ''
+    # 提交信息及链接(markdown)
+    for commit in data['commits']:
+        commit_markdown += '> [' + commit['message'] + '](' + commit['url'] + ')\n'
+
+    post_markdown = f"[{repo_head}]({repo_link}) {commit_count} commits by {author}:\n\n{commit_markdown}"
+
+    # commit_message = data['commits'][0]['message']
+    # # 提交链接
+    # commit_link = data['commits'][0]['url']
+    
+    # 推送 markdown 信息
+    # post_markdown = "[{0}]({1}) 1 new commit by {2} \n\n [{3}]({4})"\
+    #     .format(repo_head, repo_link, author, commit_message, commit_link)
+    return post_markdown
+
+
+
+
 @app.post("/webhook", status_code=http.HTTPStatus.ACCEPTED)
 async def webhook(request: Request, x_hub_signature:str = Header(None)):
     """webhook 中转服务  
@@ -47,20 +83,16 @@ async def webhook(request: Request, x_hub_signature:str = Header(None)):
     # 获取请求体并转换为 json(dict)
     data = jsonable_encoder(pyload.decode("utf-8"))
     data = json.loads(data)
-    # 仓库及分支
-    repo_head = data['repository']['name'] + ':' + data['ref'].split('/')[-1]
-    # 仓库链接
-    repo_link = data['repository']['url']
-    # 提交作者
-    author = data['commits'][0]['author']['name']
-    # 提交信息
-    commit_message = data['commits'][0]['message']
-    # 提交链接
-    commit_link = data['commits'][0]['url']
-    
-    # 推送 markdown 信息
-    post_markdown = "[{0}]({1}) 1 new commit by {2} \n\n [{3}]({4})"\
-        .format(repo_head, repo_link, author, commit_message, commit_link)
+
+    # 获取 event 类型
+    event = request.headers['X-GitHub-Event']
+    print(event)
+
+    # 处理 push 事件
+    if event == 'push':
+        post_markdown = push_event(data)
+    else:
+        post_markdown = f"未处理事件: {event}"
     
     # 调用企微 Bot Webhook 接口推送消息
     requests.post(
@@ -85,3 +117,5 @@ if __name__ == "__main__":
         + config['uvicorn']['reload'] + " " \
             + "--host " + config['uvicorn']['host'] + " " \
                 + "--port " + str(config['uvicorn']['port']))
+
+
