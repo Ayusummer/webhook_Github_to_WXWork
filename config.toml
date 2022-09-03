@@ -1,0 +1,12 @@
+# 企业微信 Bot Webhook 地址
+wechat_bot_webhook_link = 'xxx'
+# 加签密钥
+WEBHOOK_SECRET = 'xxx'
+# 当前模式
+env = 'produce'
+
+# uvicorn 相关配置
+[uvicorn]
+reload = "--reload"
+host = '0.0.0.0'
+port = 8000
