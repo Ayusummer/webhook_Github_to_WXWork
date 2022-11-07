@@ -98,6 +98,136 @@ def branch_or_tag_create_event(data: dict) -> str:
 
     return post_markdown
 
+def workflow_run_event(data:dict) -> str:
+    """通过 data 获取 workflow_run 信息并生成相应 markdown 推送文本  
+    :param data: workflow_run 事件中的 json data
+    """
+    # 仓库及分支
+    repo_head = data['repository']['name']
+    # 仓库链接
+    repo_link = data['repository']['url']
+    # workflow name
+    workflow_name = data['workflow_run']['name']
+    # workflow link
+    workflow_link = data['workflow_run']['html_url']
+    # workflow status
+    workflow_status = data['workflow_run']['status']
+    # workflow conclusion
+    workflow_conclusion = data['workflow_run']['conclusion']
+
+    if workflow_status != 'None':
+        post_markdown = f"[{repo_head}]({repo_link}) workflow [{workflow_name}]({workflow_link}) 状态: {workflow_status} 结果: {workflow_conclusion}"
+        return post_markdown
+
+
+def workflow_job_event(data:dict) -> str:
+    """通过 data 获取 workflow_job 信息并生成相应 markdown 推送文本   
+    :param data: workflow_job 事件中的 json data
+    """
+    # 仓库及分支
+    repo_head = data['repository']['name']
+    # 仓库链接
+    repo_link = data['repository']['url']
+    # workflow name
+    workflow_name = data['workflow_job']['name']
+    # workflow link
+    workflow_link = data['workflow_job']['html_url']
+    # workflow status
+    workflow_status = data['workflow_job']['status']
+    # workflow conclusion
+    workflow_conclusion = data['workflow_job']['conclusion']
+
+    if workflow_status != 'None':
+        post_markdown = f"[{repo_head}]({repo_link}) workflow [{workflow_name}]({workflow_link}) 状态: {workflow_status} 结果: {workflow_conclusion}"
+        return post_markdown
+
+
+def check_run_event(data: dict) -> str:
+    """通过 data 获取 check_run 信息并生成相应 markdown 推送文本  
+    :param data: check_run 事件中的 json data
+    """
+    # 仓库及分支
+    repo_head = data['repository']['name']
+    # 仓库链接
+    repo_link = data['repository']['url']
+    # check name
+    check_name = data['check_run']['name']
+    # check link
+    check_link = data['check_run']['html_url']
+    # check status
+    check_status = data['check_run']['status']
+    # check conclusion
+    check_conclusion = data['check_run']['conclusion']
+
+    if check_status != 'None':
+        post_markdown = f"[{repo_head}]({repo_link}) check [{check_name}]({check_link}) 状态: {check_status} 结果: {check_conclusion}"
+        return post_markdown
+
+
+def check_suite_event(data: dict) -> str:
+    """通过 data 获取 check_suit 信息并生成相应 markdown 推送文本  
+    :param data: check_suit 事件中的 json data
+    """
+    # 仓库及分支
+    repo_head = data['repository']['name']
+    # 仓库链接
+    repo_link = data['repository']['url']
+    # head_branch
+    head_branch = data['check_suite']['head_branch']
+    # status
+    status = data['check_suite']['status']
+    if status != 'None':
+        post_markdown = f"[{repo_head}]({repo_link}) 在 {head_branch} 分支上的 check_suit 当前状态为 {status} "
+        return post_markdown
+
+
+def deployment_event(data: dict) -> str:
+    """通过 data 获取 deploy 信息并生成相应 markdown 推送文本  
+    :param data: deploy 事件中的 json data
+    """
+    # 仓库及分支
+    repo_head = data['repository']['name']
+    # 仓库链接
+    repo_link = data['repository']['url']
+    # environment
+    environment = data['deployment']['environment']
+
+    post_markdown = f"[{repo_head}]({repo_link}) 在 {environment} 环境上存在部署任务"
+    return post_markdown
+
+
+def deployment_status_event(data: dict) -> str:
+    """通过 data 获取 deployment_status 信息并生成相应 markdown 推送文本  
+    :param data: deployment_status 事件中的 json data
+    """
+    # 仓库及分支
+    repo_head = data['repository']['name']
+    # 仓库链接
+    repo_link = data['repository']['url']
+
+    # environment
+    environment = data['deployment_status']['environment']
+    # state
+    state = data['deployment_status']['state']
+
+    if state != 'None':
+        post_markdown = f"[{repo_head}]({repo_link}) 在 {environment} 环境上的部署任务的状态为 {state}"
+        return post_markdown
+
+
+def page_build_event(data: dict) -> str:
+    """通过 data 获取 deployment_status 信息并生成相应 markdown 推送文本  
+    :param data: deployment_status 事件中的 json data
+    """
+    # 仓库及分支
+    repo_head = data['repository']['name']
+    # 仓库链接
+    repo_link = data['repository']['url']
+    
+    post_markdown = f"[{repo_head}]({repo_link}) 的 Github Page 正在构建"
+    return post_markdown
+
+
 @app.post("/webhook", status_code=http.HTTPStatus.ACCEPTED)
 async def webhook(request: Request, x_hub_signature:str = Header(None)):
     """webhook 中转服务  
@@ -128,6 +258,8 @@ async def webhook(request: Request, x_hub_signature:str = Header(None)):
     # 处理 Webhook 初始化 ping 事件
     elif event == 'ping':
         post_markdown = ping_event(data)
+    elif event == 'page_build':
+        post_markdown = page_build_event(data)
     else:
         post_markdown = f"未处理事件: {event}"
     
