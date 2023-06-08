@@ -3,6 +3,8 @@ Github Repo Webhook 推送到企微群的中转服务
 
 # TODO
 
+> 由于后续基本没太有相关需求, 因此暂时摸了, 后面有需要再继续写
+
 - 更多事件支持
   - [x] Pushes
   - [x] Branch or tag creation
